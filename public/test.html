@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Tester</title>
+  </head>
+  <body>
+    <h1>API Tester</h1>
+    <form id="apiForm">
+      <h2>Token</h2>
+      <textarea
+        type="text"
+        id="token"
+        placeholder="Enter your API token"
+      ></textarea>
+      <br /><br />
+
+      <h2>Upload Files</h2>
+      <input type="file" id="fileInput" multiple />
+      <br /><br />
+
+      <h2>Other Parameters</h2>
+      <label>
+        <span>Are PDFs:</span>
+        <input type="checkbox" id="isPdfs" />
+      </label>
+      <br /><br />
+
+      <label>
+        <span>Copies:</span>
+        <input type="number" id="copies" min="1" value="1" />
+      </label>
+      <br /><br />
+
+      <label>
+        <span>Print on Both Sides:</span>
+        <input type="checkbox" id="bothSides" />
+      </label>
+      <br /><br />
+
+      <h2>Page Configuration</h2>
+      <label>
+        <span>Black and White Pages (comma-separated):</span>
+        <input type="text" id="bw" placeholder="e.g., 1,2,3" />
+      </label>
+      <br /><br />
+
+      <label>
+        <span>Color Pages (comma-separated):</span>
+        <input type="text" id="color" placeholder="e.g., 4,5" />
+      </label>
+      <br /><br />
+
+      <button type="button" onclick="sendRequest()">Send Request</button>
+    </form>
+
+    <pre
+      id="responseOutput"
+      style="margin-top: 20px; background-color: #f4f4f4; padding: 10px"
+    ></pre>
+
+    <script>
+      async function sendRequest() {
+        const token = document.getElementById("token").value;
+        const fileInput = document.getElementById("fileInput");
+        const isPdfs = document.getElementById("isPdfs").checked;
+        const copies = parseInt(document.getElementById("copies").value);
+        const bothSides = document.getElementById("bothSides").checked;
+        const bwPages = document
+          .getElementById("bw")
+          .value.split(",")
+          .map(Number)
+          .filter((n) => !isNaN(n));
+        const colorPages = document
+          .getElementById("color")
+          .value.split(",")
+          .map(Number)
+          .filter((n) => !isNaN(n));
+
+        // Convert files to base64
+        const files = [];
+        for (const file of fileInput.files) {
+          const base64Data = await toBase64(file);
+          files.push({
+            mime: file.type,
+            data: base64Data,
+          });
+        }
+
+        // Prepare API request body
+        const requestBody = {
+          files: files,
+          all: isPdfs,
+          copies: copies,
+          bothSides: bothSides,
+          pageConfig: {
+            bw: bwPages,
+            color: colorPages,
+          },
+        };
+
+        // Make API request
+        const apiUrl = "/order/new"; // Replace with your API URL
+        try {
+          const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(requestBody),
+          });
+          const responseData = await response.json();
+          document.getElementById("responseOutput").innerText = JSON.stringify(
+            responseData,
+            null,
+            2
+          );
+        } catch (error) {
+          document.getElementById(
+            "responseOutput"
+          ).innerText = `Error: ${error.message}`;
+        }
+      }
+
+      function toBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result.split(",")[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+    </script>
+  </body>
+</html>
