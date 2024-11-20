@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db } from "../../../lib/db";
 import { asyncHandler } from "../../../lib/async-handler";
 
-const querySchema = z.object({
+const bodySchema = z.object({
   id: z.string(),
   status: z.enum(["COMPLETED", "CANCELLED"]),
 });
@@ -14,7 +14,7 @@ export const updateOrderStatusHandler = asyncHandler(async (req, res) => {
     throw new Error("User not found");
   }
 
-  const { id, status } = querySchema.parse(req.query);
+  const { id, status } = bodySchema.parse(req.body);
 
   const order = await db.order.update({
     where: {

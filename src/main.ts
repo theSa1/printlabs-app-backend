@@ -18,6 +18,7 @@ import { getProfileHandler } from "./routes/profile/get";
 import { updateProfileHandler } from "./routes/profile/update";
 import expressWinston from "express-winston";
 import winston from "winston";
+import { listPaidOrdersHandler } from "./routes/admin/orders/list-paid-orders";
 
 const app = express();
 
@@ -68,6 +69,7 @@ app.get("/statistics", getStatisticsHandler);
 app.post("/admin/auth/login", adminLoginHandler);
 app.get("/admin/order/get", adminGetOrderHandler);
 app.post("/admin/order/update-status", updateOrderStatusHandler);
+app.get("/admin/orders/list-paid", listPaidOrdersHandler);
 
 app.use(express.static("public"));
 

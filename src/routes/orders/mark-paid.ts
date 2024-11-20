@@ -2,7 +2,7 @@ import { z } from "zod";
 import { db } from "../../lib/db";
 import { asyncHandler } from "../../lib/async-handler";
 
-const querySchema = z.object({
+const bodySchema = z.object({
   id: z.string(),
 });
 
@@ -12,7 +12,7 @@ export const markOrderPaid = asyncHandler(async (req, res) => {
     throw new Error("User not found");
   }
 
-  const { id } = querySchema.parse(req.query);
+  const { id } = bodySchema.parse(req.body);
 
   const order = await db.order.findFirst({
     where: {

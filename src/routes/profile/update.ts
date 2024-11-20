@@ -11,7 +11,7 @@ const bodySchema = z.object({
 });
 
 export const updateProfileHandler = asyncHandler(async (req, res) => {
-  const { name, email, phoneNo, dob } = bodySchema.parse(req.body);
+  const { name, email, phoneNo, dob, gender } = bodySchema.parse(req.body);
 
   const user = req.user;
 
@@ -28,6 +28,7 @@ export const updateProfileHandler = asyncHandler(async (req, res) => {
       email: email || undefined,
       phoneNo: phoneNo || undefined,
       dob: dob || undefined,
+      gender: gender,
     },
     select: {
       id: true,
